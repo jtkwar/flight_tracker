@@ -34,7 +34,7 @@ import schedule
 
 import smtplib
 
-def check_flights(dest, dept, rtn):
+def check_flights(trvl_dest, dept, rtn):
     # replace the path for the web driver
     # might need to download a more updated version of the chromedriver
     chrome_path = 'C:\\Users\\stark\\Downloads\\chromedriver'
@@ -98,7 +98,7 @@ def check_flights(dest, dept, rtn):
     stops_flat = [item for sublist in stops1 for item in sublist]
     df_flts = pd.DataFrame(list(zip(dept_date, rtn_date, destination, prices2, stops_flat, flttime)), columns =['DepartureDate', 'ReturnDate', 'Destination', 'PriceUSD', 'Stops', 'TravelTime'])
     
-    my_city = dest
+    my_city = trvl_dest
     # sub-select dataframe for destination of interest
     temp = df_flts.query("Destination=='{0}'".format(my_city))
     
@@ -120,7 +120,7 @@ def check_flights(dest, dept, rtn):
     # save all instances of the cheap flight to a list of strings
     my_strings = []
     for i in range(len(df_lowest)):
-        ugh = "To " + dest + " on " + df_lowest['DepartureDate'].iloc[i] + " for $" + str(df_lowest['PriceUSD'].iloc[i])
+        ugh = "To " + trvl_dest + " on " + df_lowest['DepartureDate'].iloc[i] + " for $" + str(df_lowest['PriceUSD'].iloc[i])
         my_strings.append(ugh)
     # concentate strings together to send as text message
     new = '\n'.join(my_strings)
@@ -133,16 +133,10 @@ def check_flights(dest, dept, rtn):
     server.login( 'Your Email', "Your Password" )
     
     # save the message
-    message = "ALERT!!! To " + dest + "\n" + new
+    message = "ALERT!!!" + "\n" + new
 
     # Send text message through SMS gateway of destination number
     server.sendmail( 'Flight Updater', '##########@mms.att.net', message)
-    
-# set up the scheduler to run our code every 60 min
-schedule.every(60).minutes.do(check_flights('London', '2020-03-01', '2020-03-08'))
-while 1:
-    schedule.run_pending()
-    sleep(1)
     
     
         
